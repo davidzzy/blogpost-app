@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const db = require('../db'); 
+// Import the DB instance
 
 // GET all posts
 router.get('/', (req, res) => {
-  req.app.locals.db.all('SELECT * FROM posts ORDER BY id DESC', (err, rows) => {
+  db.all('SELECT * FROM posts ORDER BY id DESC', (err, rows) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -14,7 +16,7 @@ router.get('/', (req, res) => {
 // GET a single post by id
 router.get('/:id', (req, res) => {
   const { id } = req.params;
-  req.app.locals.db.get('SELECT * FROM posts WHERE id = ?', [id], (err, row) => {
+  db.get('SELECT * FROM posts WHERE id = ?', [id], (err, row) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -31,7 +33,7 @@ router.post('/', (req, res) => {
   if (!title || !content) {
     return res.status(400).json({ error: 'Title and content are required' });
   }
-  req.app.locals.db.run(
+  db.run(
     'INSERT INTO posts (title, content) VALUES (?, ?)',
     [title, content],
     function (err) {
@@ -48,15 +50,12 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   const { id } = req.params;
   const { title, content } = req.body;
-  req.app.locals.db.run(
+  db.run(
     'UPDATE posts SET title = ?, content = ? WHERE id = ?',
     [title, content, id],
     function (err) {
       if (err) {
         return res.status(500).json({ error: err.message });
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ error: 'Post not found' });
       }
       return res.json({ message: 'Post updated successfully' });
     }
@@ -66,12 +65,9 @@ router.put('/:id', (req, res) => {
 // DELETE a post
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
-  req.app.locals.db.run('DELETE FROM posts WHERE id = ?', [id], function (err) {
+  db.run('DELETE FROM posts WHERE id = ?', [id], function (err) {
     if (err) {
       return res.status(500).json({ error: err.message });
-    }
-    if (this.changes === 0) {
-      return res.status(404).json({ error: 'Post not found' });
     }
     return res.json({ message: 'Post deleted successfully' });
   });

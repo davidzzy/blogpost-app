@@ -14,21 +14,21 @@ function App() {
   }, []);
 
   // CRUD to call backend node apis
-  const fetchPosts = async () => {
-    try {
-      const response = await axios.get('http://localhost:3001/api/posts');
-      setPosts(response.data);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    }
-  };
-
   const createPost = async (title, content) => {
     try {
       await axios.post('http://localhost:3001/api/posts', { title, content });
       fetchPosts(); // refresh list
     } catch (error) {
       console.error('Error creating post:', error);
+    }
+  };
+
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/posts');
+      setPosts(response.data);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
     }
   };
 
